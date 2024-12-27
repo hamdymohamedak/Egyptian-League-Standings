@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Permission and Capture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    video {
+      border: 2px solid #333;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      display: none;
+    }
+    canvas {
+      display: none;
+    }
+    .images {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .images img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #333;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Capture 10 Pictures</h1>
+  <button id="permissionBtn">Allow Camera Permission</button>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas"></canvas>
+  <div class="images" id="images"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const permissionBtn = document.getElementById('permissionBtn');
+    const imagesDiv = document.getElementById('images');
+    const MAX_IMAGES = 10;
+
+    let stream = null;
+
+    // Request camera access
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.style.display = 'block';
+        permissionBtn.disabled = true;
+        console.log('Camera permission granted.');
+        setTimeout(capturePictures, 10000); // Wait 10 seconds before capturing pictures
+      } catch (error) {
+        alert('Unable to access the camera.');
+        console.error('Camera access error:', error);
+      }
+    }
+
+    // Capture 10 pictures with a 500ms gap
+    async function capturePictures() {
+      const ctx = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      let capturedImages = [];
+      for (let i = 0; i < MAX_IMAGES; i++) {
+        // Draw the current video frame onto the canvas
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas to image data URL
+        const imgDataUrl = canvas.toDataURL('image/png');
+        capturedImages.push(imgDataUrl);
+
+        await new Promise(resolve => setTimeout(resolve, 26)); // Wait 500ms before the next capture
+      }
+
+      displayImages(capturedImages);
+    }
+
+    // Display all captured images
+    function displayImages(images) {
+      imagesDiv.innerHTML = ''; // Clear any existing images
+      images.forEach(imgSrc => {
+        const img = document.createElement('img');
+        img.src = imgSrc;
+        imagesDiv.appendChild(img);
+      });
+
+      // Stop the camera
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      video.style.display = 'none';
+    }
+
+    // Event listener for permission button
+    permissionBtn.addEventListener('click', startCamera);
+
+    // Stop the camera when the page unloads
+    window.addEventListener('beforeunload', () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    });
+  </script>
+</body>
+</html>

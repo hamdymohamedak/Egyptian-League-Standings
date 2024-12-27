@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product page</title>
+    <script>
+        // This function will run when the user clicks on the price div
+        function setPrice() {
+            var price = document.querySelector('.price').textContent; // Get the price value
+            // Redirect to the Home page with the price as a URL parameter
+            window.location.href = "./index.html?price=" + encodeURIComponent(price);
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <!-- When this div is clicked, it will call the setPrice function -->
+        <div class="price" onclick="setPrice()">100$</div>
+    </div>
+</body>
+</html>
