@@ -1,133 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Camera Permission and Capture</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 20px;
-    }
-    video {
-      border: 2px solid #333;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 400px;
-      display: none;
-    }
-    canvas {
-      display: none;
-    }
-    .images {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .images img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 2px solid #333;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-  </style>
-</head>
-<body>
-  <h1>Capture 10 Pictures</h1>
-  <button id="permissionBtn">Allow Camera Permission</button>
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas"></canvas>
-  <div class="images" id="images"></div>
-
-  <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const permissionBtn = document.getElementById('permissionBtn');
-    const imagesDiv = document.getElementById('images');
-    const MAX_IMAGES = 10;
-
-    let stream = null;
-
-    // Request camera access
-    async function startCamera() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        video.style.display = 'block';
-        permissionBtn.disabled = true;
-        console.log('Camera permission granted.');
-        setTimeout(capturePictures, 10000); // Wait 10 seconds before capturing pictures
-      } catch (error) {
-        alert('Unable to access the camera.');
-        console.error('Camera access error:', error);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Egyptian League Standings</title>
+    <style>
+      /* Base Styles */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        transition: 0.2s;
       }
-    }
-
-    // Capture 10 pictures with a 500ms gap
-    async function capturePictures() {
-      const ctx = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      let capturedImages = [];
-      for (let i = 0; i < MAX_IMAGES; i++) {
-        // Draw the current video frame onto the canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Convert canvas to image data URL
-        const imgDataUrl = canvas.toDataURL('image/png');
-        capturedImages.push(imgDataUrl);
-
-        await new Promise(resolve => setTimeout(resolve, 26)); // Wait 500ms before the next capture
+      html {
+        font-size: 16px;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #f3f4f7, #e2eafc);
+        padding: 1rem; /* Reduced padding for smaller screens */
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      h2 {
+        text-align: center;
+        color: #1d3557;
+        font-size: 1.5rem; /* Reduced font size for smaller screens */
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
       }
 
-      displayImages(capturedImages);
-    }
+      /* Table Container */
+      .table-container {
+        background: white;
+        padding: 1rem; /* Reduced padding */
+        border-radius: 0.625rem;
+        box-shadow: 0px 0.5rem 0.9375rem rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 56.25rem;
+        overflow-x: auto; /* Allow horizontal scrolling */
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 0.625rem;
+        margin-top: 0.625rem;
+        font-size: 0.9rem; /* Smaller font size for readability */
+      }
+      th,
+      td {
+        padding: 0.75rem 1rem; /* Reduced padding */
+        text-align: left;
+      }
+      th {
+        background: #457b9d;
+        color: white;
+        text-transform: uppercase;
+        font-weight: bold;
+      }
+      tbody tr:nth-child(even) {
+        background-color: #f1f5f9;
+      }
+      tbody tr:hover {
+        background-color: #dbeafe;
+        transition: background-color 0.3s ease;
+      }
+      td {
+        color: #555;
+      }
 
-    // Display all captured images
-    function displayImages(images) {
-      imagesDiv.innerHTML = ''; // Clear any existing images
-      images.forEach(imgSrc => {
-        const img = document.createElement('img');
-        img.src = imgSrc;
-        imagesDiv.appendChild(img);
+      /* Button Style */
+      .translate-button {
+        display: block;
+        margin: 0.75rem auto; /* Centered button */
+        padding: 0.625rem 1.25rem;
+        background: #457b9d;
+        color: white;
+        border: none;
+        border-radius: 0.3125rem;
+        cursor: pointer;
+        font-size: 1rem;
+        text-transform: uppercase;
+        width: fit-content; /* Ensure button doesn't stretch */
+      }
+      .translate-button:hover {
+        background: #1d3557;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        body {
+          padding: 0.5rem;
+        }
+        h2 {
+          font-size: 1.25rem;
+        }
+        table {
+          font-size: 0.8rem;
+        }
+        th,
+        td {
+          padding: 0.5rem 0.75rem;
+        }
+        .translate-button {
+          font-size: 0.875rem;
+          padding: 0.5rem 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        h2 {
+          font-size: 1rem;
+        }
+        table {
+          font-size: 0.75rem;
+        }
+        th,
+        td {
+          padding: 0.4rem 0.6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="table-container">
+      <h2>Egyptian League Standings</h2>
+      <button class="translate-button" id="translateBtn">
+        Translate to Arabic
+      </button>
+      <table id="standingsTable">
+        <thead>
+          <tr>
+            <th data-en="Position" data-ar="الموقع">Position</th>
+            <th data-en="Team" data-ar="الفريق">Team</th>
+            <th data-en="Played" data-ar="المباريات">Played</th>
+            <th data-en="Won" data-ar="الفوز">Won</th>
+            <th data-en="Drawn" data-ar="التعادل">Drawn</th>
+            <th data-en="Lost" data-ar="الخسارة">Lost</th>
+            <th data-en="Points" data-ar="النقاط">Points</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <script>
+      const api =
+        "https://webws.365scores.com/web/standings/?appTypeId=5&langId=27&timezoneName=America/New_York&userCountryId=131&competitions=552&live=true&withSeasonsFilter=true";
+      // Fetch and map standings data
+      fetch(api)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          const standings = data.standings[0]?.rows || [];
+          const tableBody = document.querySelector("#standingsTable tbody");
+          standings.forEach((row) => {
+            const team = row.competitor.name;
+            const position = row.position;
+            const played = row.gamePlayed;
+            const won = row.gamesWon;
+            const drawn = row.gamesEven;
+            const lost = row.gamesLost;
+            const points = row.points;
+            const rowHtml = `
+                        <tr>
+                            <td>${position}</td>
+                            <td>${team}</td>
+                            <td>${played}</td>
+                            <td>${won}</td>
+                            <td>${drawn}</td>
+                            <td>${lost}</td>
+                            <td>${points}</td>
+                        </tr>
+                    `;
+            tableBody.insertAdjacentHTML("beforeend", rowHtml);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching the API:", error);
+        });
+
+      // Translation toggle logic
+      const translateButton = document.getElementById("translateBtn");
+      let isTranslated = false;
+      translateButton.addEventListener("click", () => {
+        const headers = document.querySelectorAll("th");
+        headers.forEach((header) => {
+          header.textContent = isTranslated
+            ? header.dataset.en
+            : header.dataset.ar;
+        });
+        translateButton.textContent = isTranslated
+          ? "Translate to Arabic"
+          : "Translate to English";
+        isTranslated = !isTranslated;
       });
-
-      // Stop the camera
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      video.style.display = 'none';
-    }
-
-    // Event listener for permission button
-    permissionBtn.addEventListener('click', startCamera);
-
-    // Stop the camera when the page unloads
-    window.addEventListener('beforeunload', () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
