@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مباريات كرة القدم القادمة</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(45deg, #3498db, #8e44ad);
+      background-size: 400% 400%;
+      animation: gradientAnimation 15s ease infinite;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.3s, color 0.3s;
+      color: #fff;
+    }
+    
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .dark-mode {
+      background-color: #1f1f1f;
+      color: #e0e0e0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      z-index: 1;
+    }
+
+    h1 {
+      text-align: center;
+      color: #f8f8f8;
+      font-size: 3rem;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-list {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .date-group {
+      margin-bottom: 40px;
+    }
+
+    .date-group h2 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #fff;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-card {
+      background-color: rgba(255, 255, 255, 0.85);
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      margin-bottom: 15px;
+      transition: transform 0.3s, background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .game-card:hover {
+      background-color: #f0f0f0;
+      transform: translateY(-10px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-card h3 {
+      margin: 0 0 10px;
+      color: #333;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
+
+    .game-card p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    .game-card .team {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .game-card .time {
+      color: #777;
+    }
+
+    .mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .mode-toggle:hover {
+      background-color: #444;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>مباريات كرة القدم القادمة</h1>
+    <div class="game-list" id="game-list"></div>
+  </div>
+
+  <script>
+    // دالة لجلب البيانات من الـ API
+    async function fetchFixtures() {
+      const apiUrl = 'https://webws.365scores.com/web/games/fixtures/?appTypeId=5&langId=27&timezoneName=Egypt/CAIRO&userCountryId=131&competitions=552&showOdds=true&includeTopBettingOpportunity=1';
+
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error('فشل في جلب البيانات');
+        }
+
+        const data = await response.json();
+        displayFixtures(data.games);
+      } catch (error) {
+        console.error('خطأ:', error);
+        document.getElementById('game-list').innerHTML = '<p style="text-align:center; color:red;">فشل في تحميل المباريات.</p>';
+      }
+    }
+
+    // دالة لعرض المباريات وتجميعها حسب التاريخ
+    function displayFixtures(games) {
+      const gameList = document.getElementById('game-list');
+      gameList.innerHTML = ''; // مسح البيانات القديمة
+
+      const groupedByDate = groupGamesByDate(games);
+
+      for (const [date, gamesOnDate] of Object.entries(groupedByDate)) {
+        const dateGroup = document.createElement('div');
+        dateGroup.className = 'date-group';
+
+        const dateHeading = document.createElement('h2');
+        dateHeading.textContent = new Date(date).toLocaleDateString('ar-EG', {
+          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+        dateGroup.appendChild(dateHeading);
+
+        gamesOnDate.forEach(game => {
+          const homeTeam = game.homeCompetitor.name;
+          const awayTeam = game.awayCompetitor.name;
+          const startTime = new Date(game.startTime).toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' });
+          const status = game.statusText;
+
+          const gameCard = document.createElement('div');
+          gameCard.className = 'game-card';
+
+          gameCard.innerHTML = `
+            <h3>${homeTeam} ضد ${awayTeam}</h3>
+            <p class="time"><strong>الوقت:</strong> ${startTime}</p>
+            <p><strong>الحالة:</strong> ${status}</p>
+          `;
+
+          dateGroup.appendChild(gameCard);
+        });
+
+        gameList.appendChild(dateGroup);
+      }
+    }
+
+    // دالة لتجميع المباريات حسب التاريخ
+    function groupGamesByDate(games) {
+      return games.reduce((acc, game) => {
+        const gameDate = new Date(game.startTime).toISOString().split('T')[0]; // تنسيق كـ YYYY-MM-DD
+        if (!acc[gameDate]) {
+          acc[gameDate] = [];
+        }
+        acc[gameDate].push(game);
+        return acc;
+      }, {});
+    }
+
+
+
+    // استدعاء دالة جلب البيانات عند تحميل الصفحة
+    window.onload = fetchFixtures;
+  </script>
+</body>
+</html>
