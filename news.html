@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports News</title>
+    <style>
+        /* Resetting default styles */
+        body, h1, p, article {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* General body styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        /* News container styling */
+        #news-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        article {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        article:hover {
+            transform: translateY(-10px);
+        }
+
+        .article-header {
+            background-color: #34495e;
+            color: #fff;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .article-content {
+            padding: 15px;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        footer p {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Latest Sports News</h1>
+    </header>
+
+    <main id="news-container">
+        <!-- Dynamic content will be injected here -->
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Sports News | All rights reserved.</p>
+    </footer>
+
+    <script>
+ const apiUrl = 'https://webws.365scores.com/web/news/?appTypeId=5&langId=27&timezoneName=America/New_York&userCountryId=131&competitions=552&userCompetitions=552&isPreview=true';
+
+async function fetchNews() {
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        if (data && data.news) {
+            mapNewsData(data.news);
+        } else {
+            document.getElementById('news-container').innerHTML = '<p>No news available.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching news:', error);
+        document.getElementById('news-container').innerHTML = '<p>There was an error loading the news.</p>';
+    }
+}
+
+function mapNewsData(newsItems) {
+    const newsContainer = document.getElementById('news-container');
+    newsContainer.innerHTML = ''; // Clear the container before adding new data
+
+    newsItems.forEach(item => {
+        const article = document.createElement('article');
+
+        // Header section (Title)
+        const header = document.createElement('div');
+        header.classList.add('article-header');
+        header.textContent = item.title || 'No Title Available';
+        article.appendChild(header);
+
+        // Image section (if available)
+        if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.alt = item.title || 'Article Image';
+            img.style.width = '100%'; // Ensure the image fits within the article
+            img.style.height = 'auto';
+            article.appendChild(img);
+        }
+
+        // Content section (Optional content or placeholder)
+        const content = document.createElement('div');
+        content.classList.add('article-content');
+        content.innerHTML = item.publishDate || 'No content available';
+        article.appendChild(content);
+
+        // Link section (Redirect to the full article URL)
+        const link = document.createElement('a');
+        link.href = item.url || '#';
+        link.target = '_blank'; // Open link in a new tab
+        link.rel = 'noopener noreferrer'; // Security best practice
+        link.textContent = 'Read More';
+        link.style.display = 'block';
+        link.style.textAlign = 'center';
+        link.style.marginTop = '10px';
+        link.style.color = '#34495e';
+        link.style.textDecoration = 'underline';
+        article.appendChild(link);
+
+        // Append the article to the container
+        newsContainer.appendChild(article);
+    });
+}
+
+fetchNews();
+    </script>
+
+</body>
+
+</html>
